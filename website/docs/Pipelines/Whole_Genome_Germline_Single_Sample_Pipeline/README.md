@@ -17,18 +17,51 @@ For a broad overview of the pipeline processes, read the GATK Best Practices doc
 The pipeline adheres to the Functional Equivalence pipeline specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)), a standard set of pipeline parameters to promote data interoperability across a multitude of global research projects and consortia. Read the [specification](https://github.com/CCDG/Pipeline-Standardization/blob/master/PipelineStandard.md) for full details or learn more about functionally equivalent pipelines in [this GATK blog](https://github.com/broadinstitute/gatk-docs/blob/master/blog-2012-to-2019/2018-02-09-Batch_effects_begone:_Introducing_the_Functional_Equivalence_data_processing_pipeline_spec.md).
  
 :::tip Want to try the WGS pipeline in Terra?
-Two workspaces are available to test the WGS pipeline, each containing downsampled data, references, premade configurations, and instructions. To run the DRAGEN-GATK implementation of the WGS pipeline, check out the DRAGEN-GATK featured workspace. To run the WGS pipeline with joint calling, try the Whole-Genome-Analysis-Pipeline featured workspace.
+Two workspaces containing example data and instructions are available to test the WGS pipeline: 
+1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](LINK) to showcase the DRAGEN-GATK pipeline mode
+2. a [Whole-Genome-Analysis-Pipeline workspace](LINK) to showcase the WGS pipeline with joint calling
 :::
  
 ## Running the DRAGEN-GATK implementation of the WGS pipeline
-Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-GATK mode. By setting the Dragen parameters as listed below, the WGS workflow produces outputs that are functionally equivalent to the DRAGEN pipeline. 
-To learn more about how outputs are tested for functional equivalence, try the Functional Equivalence workflow in Terra.
-#### DRAGEN-GATK parameters
-1. `use_bwa_mem` is false; this calls the DRAGEN Drapmap aligner instead of BWA mem.
-2.  `run_dragen_mode` is true; the workflow creates a DRAGstr model with the GATK CalibrateDragstrModel tool and uses it for variant calling with HaplotypeCaller in --dragen-mode.
-3. `perform_bqsr` is optionally false; BQSR is not necessary for the DRAGEN pipeline as the DRAGstr model is used for base recalibration. 
-4. `dragen_mode_hard_filter` is true; this turns on VCF hard filtering.
+Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-GATK mode. 
+
+![dragen](./DRAGEN_Fig3_resize.jpg)
+
+#### Individual DRAGEN-GATK parameters
+The WGS workflow can be customized to mix and match different DRAGEN-related parameters. The default DRAGEN settings and descriptions are listed below and may be modified as needed: 
+
+1. `use_bwa_mem` is false.
+    * When true, the workflow calls the DRAGEN Drapmap aligner instead of BWA mem.
+2.  `run_dragen_mode_variant_calling` is true.
+    *  The workflow creates a DRAGstr model with the GATK CalibrateDragstrModel tool and uses it for variant calling with HaplotypeCaller in --dragen-mode.
+3. `perform_bqsr` is optionally false.
+    * BQSR is not necessary for the DRAGEN pipeline as the DRAGstr model is used for base recalibration. 
+4. `dragen_mode_hard_filter` is false.
+    * When true, the parameter turns on VCF hard filtering.
  
+
+#### Two DRAGEN modes for configuring the WGS pipeline
+Although the DRAGEN parameters can be turned on and off as needed, there are two mutually exclusive input workflow modes that can automatically configure the DRAGEN-related inputs:
+1. **dragen_functional_equivalency_mode**
+2. **dragen_maximum_quality_mode**
+
+The **dragen_functional_equivalency_mode** runs the pipeline so that it is functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
+1. `run_dragen_mode_variant_calling` is true.
+2. `use_bwa_mem` is false.
+3. `perform_bqsr` is false.
+4. `use_spanning_event_genotyping` is false.
+
+By setting the Dragen parameters as listed below, the WGS workflow produces outputs that are functionally equivalent to the DRAGEN pipeline. 
+
+To learn more about how outputs are tested for functional equivalence, try the [Functional Equivalence workflow](https://app.terra.bio/#workspaces/broad-firecloud-dsde-methods/FunctionalEquivalence) in Terra.
+
+The **dragen_maximum_quality_mode** runs the pipeline using the Dragmap aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
+1. `run_dragen_mode_variant_calling` is true.
+2. `use_spanning_event_genotyping` is true.
+3. `use_bwa_mem` is false.
+4. `perform_bqsr` is false.
+
+
 When the workflow applies the Dragmap aligner, it calls reference files specific to the aligner. These files are located in a public Google bucket and described in the [Input descriptions](#input-descriptions). See the reference README for details on recreating the references.
  
 ## Set-up
@@ -78,7 +111,7 @@ The following table describes the inputs imported from a struct. Although these 
 | preemptible_tries |  PapiSettings (papi_settings) | Number of times the workflow can be preempted. | Int | 
 | agg_preemptible_tries |  PapiSettings (papi_settings) | Number of preemtible machine tries for the BamtoCram task. | Int |
  
-#### Additional Inputs
+#### Additional inputs
 Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration file](LINK). 
 
 
@@ -89,11 +122,14 @@ Additional inputs that are not contained in a struct are described in the table 
 | wgs_coverage_interval_list | Interval list for the CollectWgsMetrics tool. | File |
 | provide_bam_output | If set to true, provides the aligned BAM and index as workflow output; default set to false. | Boolean |
 | use_gatk3_haplotype_caller | Uses the GATK3.5 HaplotypeCalller; default set to true. | Boolean |
-| run_dragen_mode | Boolean used to indicate that DRAGEN mode should be used for variant calling; default set to false but must be true to compose DRAGstr model and perform variant calling with HaplotypeCaller in dragen-mode. | Boolean |
+| dragen_functional_equivalency_mode | Boolean used to run the WGS pipeline in a mode functionally equivalent to DRAGEN; set to false by default. | Boolean |
+| dragen_maximum_quality_mode | Boolean used to run the pipeline in DRAGEN mode with modifications to produce maximum quality results; set to false by default. | Boolean |
+| run_dragen_mode_variant_calling | Boolean used to indicate that DRAGEN mode should be used for variant calling; default set to false but must be true to compose DRAGstr model and perform variant calling with HaplotypeCaller in dragen-mode. | Boolean |
 | use_spanning_event_genotyping | Boolean used to call the HaplotypeCaller --disable-spanning-event-genotyping parameter; default set to true so that variant calling includes spanning events. Set to false to run the DRAGEN pipeline.  | Boolean |
+| unmap_contaminant_reads | Boolean to indicate whether to identify extremely short alignments (with clipping on both sides) as cross-species contamination and unmap the reads; default set to true. This feature is not used in the pipeline mode functionally equivalent to DRAGEN. | Boolean |
 | perform_bqsr | Boolean to turn on base recalibration with BQSR; default set to true, but not necessary when running the pipeline in DRAGEN mode. | Boolean |
 | use_bwa_mem | Boolean indicating if workflow should use the BWA mem aligner; default set to true, but must be set to false to alternatively run the DRAGEN-GATK Dragmap aligner. | Boolean | 
-| dragen_mode_hard_filter | Boolean that indicates if workflow should perform hard filtering using the GATK VariantFiltration tool with the --filter-name "DRAGENHardQUAL"; default set to false. | Boolean
+| use_dragen_hard_filtering | Boolean that indicates if workflow should perform hard filtering using the GATK VariantFiltration tool with the --filter-name "DRAGENHardQUAL"; default set to false. | Boolean
 |  read_length | Set to a max of 250 for collecting WGS metrics; specified in the workflow WDL, not in the input JSON. | Int | 
 | lod_threshold | LOD threshold for checking fingerprints; set to -20.0 specified in the workflow WDL, not in the input JSON. | Float | 
 | cross_check_fingerprints_by | Checks fingerprints by READGROUP; specified in the workflow WDL, not in the input JSON. | String |
@@ -116,7 +152,7 @@ The sections below outline each of the WGS workflow’s tasks and include tables
 **Workflow WDL task name and link:**
 [UnmappedBamToAlignedBam.UnmappedBamToAlignedBam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/UnmappedBamToAlignedBam.wdl)
  
-The table below details the subtasks called by the UnmappedBamToAlignedBam task, which calculates metrics on the unsorted, unaligned BAMs for each readgroup using Picard and then aligns reads using either BWA mem or the DRAGEN Dragmap aligner. It performs base recalibration with either BQSR or the DragSTR model. It lastly merges individual recalibrated BAM files into an aggregated BAM.
+The table below details the subtasks called by the UnmappedBamToAlignedBam task, which calculates metrics on the unsorted, unaligned BAMs for each readgroup using Picard and then aligns reads using either BWA mem or the DRAGEN Dragmap aligner. It optionally corrects base calling errors with BQSR. It lastly merges individual recalibrated BAM files into an aggregated BAM.
  
 | Subtask name (alias) and task WDL link | Tool | Software | Description |
 | --- | --- | --- | --- |
@@ -131,7 +167,7 @@ The table below details the subtasks called by the UnmappedBamToAlignedBam task,
 | [QC.CrossCheckFingerprints (CrossCheckFingerprints)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CrosscheckFingerprints | Picard | Optionally checks fingerprints if haplotype database is provided. |
 | [Utils.CreateSequenceGroupingTSV (CreateSequenceGroupingTSV)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | --- | python | Creates the sequencing groupings used for BQSR and PrintReads Scatter. |
 | [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | VerifyBamID | --- | Checks cross-sample contamination prior to variant calling. |
-| [Processing.BaseRecalibrator (BaseRecalibrator)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | BaseRecalibrator | GATK | If `perform_bqsr` is true, performs base recalibration by interval. When using the DRAGEN-GATK mode, `perform_bqsr` is optionally false as base recalibration is performed using the DRAGstr model.|
+| [Processing.BaseRecalibrator (BaseRecalibrator)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | BaseRecalibrator | GATK | If `perform_bqsr` is true, performs base recalibration by interval. When using the DRAGEN-GATK mode, `perform_bqsr` is optionally false as base calling errors are corrected in the DRAGEN variant calling step.|
 | [Processing.GatherBqsrReports (GatherBqsrReports)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | GatherBQSRReports | GATK | Merges the BQSR reports resulting from by-interval calibration. |
 | [Processing.ApplyBQSR (ApplyBQSR)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | ApplyBQSR | GATK | Applies the BQSR base recalibration model by interval. |
 | [Processing.GatherSortedBamFiles (GatherBamFiles)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | GatherBamFiles | Picard | Merges the recalibrated BAM files. |
@@ -191,8 +227,7 @@ The table below describes the QC.CollectRawWgsMetrics task which uses the Picard
 
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [QC.CollectRawWgsMetrics (CollectRawWgsMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectRawWgsMetrics | Picard |
-Collects the raw WGS metrics with commonly used QC metrics. |
+| [QC.CollectRawWgsMetrics (CollectRawWgsMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectRawWgsMetrics | Picard | Collects the raw WGS metrics with commonly used QC metrics. |
  
 ### Call variants with HaplotypeCaller
 
@@ -217,7 +252,7 @@ The table below describes the subtasks of the VariantCalling.VariantCalling (Bam
  
 ## Workflow outputs
 
-The table below describes the final workflow outputs.
+The table below describes the final workflow outputs. If running the workflow on Cromwell, these outputs are found in the respective task's execution directory.
 
 
 | Output variable name | Description | Type |
@@ -272,7 +307,7 @@ The table below describes the final workflow outputs.
 ## Important notes
  
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
-- When the pipeline runs in DRAGEN mode, it produces functionally equivalent outputs to the DRAGEN pipeline. Read more...
+- When the pipeline runs in the **dragen_functional_equivalency_mode**, it produces functionally equivalent outputs to the DRAGEN pipeline.
 - Additional information about the GATK tool parameters and the DRAGEN-GATK best practices pipeline can be found on the [GATK support site](https://gatk.broadinstitute.org/hc/en-us).
  
 ## Contact us
