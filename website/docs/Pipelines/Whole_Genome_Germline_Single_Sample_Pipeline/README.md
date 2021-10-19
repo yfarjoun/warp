@@ -25,7 +25,7 @@ Two workspaces containing example data and instructions are available to test th
 ## Running the DRAGEN-GATK implementation of the WGS pipeline
 Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-GATK mode. 
 
-![dragen](./DRAGEN_Fig3_resize.jpg)
+![dragen](./DRAGEN_Fig4_resize.jpg)
 
 #### Individual DRAGEN-GATK parameters
 The WGS workflow can be customized to mix and match different DRAGEN-related parameters. The default DRAGEN settings and descriptions are listed below and may be modified as needed: 
