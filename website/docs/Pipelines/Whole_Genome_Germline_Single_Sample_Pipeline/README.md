@@ -31,7 +31,7 @@ Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-G
 The WGS workflow can be customized to mix and match different DRAGEN-related parameters. The default DRAGEN settings and descriptions are listed below and may be modified as needed: 
 
 1. `use_bwa_mem` is false.
-    * When true, the workflow calls the DRAGEN Drapmap aligner instead of BWA mem.
+    * When true, the workflow calls the DRAGEN DRAGMAP aligner instead of BWA mem.
 2.  `run_dragen_mode_variant_calling` is true.
     *  The workflow creates a DRAGstr model with the GATK CalibrateDragstrModel tool and uses it for variant calling with HaplotypeCaller in --dragen-mode.
 3. `perform_bqsr` is optionally false.
@@ -55,14 +55,14 @@ By setting the Dragen parameters as listed below, the WGS workflow produces outp
 
 To learn more about how outputs are tested for functional equivalence, try the [Functional Equivalence workflow](https://app.terra.bio/#workspaces/broad-firecloud-dsde-methods/FunctionalEquivalence) in Terra.
 
-The **dragen_maximum_quality_mode** runs the pipeline using the Dragmap aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
+The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
 1. `run_dragen_mode_variant_calling` is true.
 2. `use_spanning_event_genotyping` is true.
 3. `use_bwa_mem` is false.
 4. `perform_bqsr` is false.
 
 
-When the workflow applies the Dragmap aligner, it calls reference files specific to the aligner. These files are located in a public Google bucket and described in the [Input descriptions](#input-descriptions). See the reference README for details on recreating the references.
+When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
  
 ## Set-up
  
@@ -74,7 +74,9 @@ The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/
 The latest release of the workflow, example data, and dependencies are available from the WARP [releases page](https://github.com/broadinstitute/warp/releases). You can explore releases using the WARP command-line tool, [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
  
 ### Input descriptions
-The tables below describe each of the WGS pipeline inputs and reference files. Examples of how to specify each input can be found in the example [input configuration file (JSON)](link). 
+The tables below describe each of the WGS pipeline inputs and reference files. 
+
+Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
  
 Multiple references are imported as part of a struct from the [DNASeqStruct WDL](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl), which is located in the WARP [structs library](https://github.com/broadinstitute/warp/tree/master/structs). For references that are part of a struct, the tables below list the relevant struct’s name. 
  
@@ -89,7 +91,7 @@ Overall, the workflow has the following input requirements:
 * Reference genome must be Hg38 with ALT contigs
  
 #### Struct inputs
-The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration file](LINK). 
+The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
 
 
 | Input name | Struct name (alias) | Input description | Input type |
@@ -103,16 +105,16 @@ The following table describes the inputs imported from a struct. Although these 
 | ontamination_sites_bed | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task. | File |
 | contamination_sites_mu | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task. | File |
 | calling_interval_list | DNASeqSingleSampleReferences (references) | Interval list used for variant calling | File |
-| reference_bin | DragmapReference (dragmap_reference) | Binary representation of the reference FASTA file used for the DRAGEN mode Dragmap aligner. | File |
-| hash_table_cfg_bin | DragmapReference (dragmap_reference) | Binary representation of the configuration for the hash table used for the DRAGEN mode Dragmap aligner. | File |
-| hash_table_cmp | DragmapReference (dragmap_reference_ | Compressed representation of the hash table that is used for the DRAGEN mode Dragmap aligner. | File |
+| reference_bin | DragmapReference (dragmap_reference) | Binary representation of the reference FASTA file used for the DRAGEN mode DRAGMAP aligner. | File |
+| hash_table_cfg_bin | DragmapReference (dragmap_reference) | Binary representation of the configuration for the hash table used for the DRAGEN mode DRAGMAP aligner. | File |
+| hash_table_cmp | DragmapReference (dragmap_reference_ | Compressed representation of the hash table that is used for the DRAGEN mode DRAGMAP aligner. | File |
 | haplotype_scatter_count | VariantCallingScatterSettings (scatter_settings) | Scatter count used for variant calling. | Int |
 | break_bands_at_multiples_of | VariantCallingScatterSettings (scatter_settings) | Breaks reference bands up at genomic positions that are multiples of this number; used to reduce GVCF file size. | Int |
 | preemptible_tries |  PapiSettings (papi_settings) | Number of times the workflow can be preempted. | Int | 
 | agg_preemptible_tries |  PapiSettings (papi_settings) | Number of preemtible machine tries for the BamtoCram task. | Int |
  
 #### Additional inputs
-Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration file](LINK). 
+Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
 
 
 | Input name | Input description | Input type |
@@ -128,7 +130,7 @@ Additional inputs that are not contained in a struct are described in the table 
 | use_spanning_event_genotyping | Boolean used to call the HaplotypeCaller --disable-spanning-event-genotyping parameter; default set to true so that variant calling includes spanning events. Set to false to run the DRAGEN pipeline.  | Boolean |
 | unmap_contaminant_reads | Boolean to indicate whether to identify extremely short alignments (with clipping on both sides) as cross-species contamination and unmap the reads; default set to true. This feature is not used in the pipeline mode functionally equivalent to DRAGEN. | Boolean |
 | perform_bqsr | Boolean to turn on base recalibration with BQSR; default set to true, but not necessary when running the pipeline in DRAGEN mode. | Boolean |
-| use_bwa_mem | Boolean indicating if workflow should use the BWA mem aligner; default set to true, but must be set to false to alternatively run the DRAGEN-GATK Dragmap aligner. | Boolean | 
+| use_bwa_mem | Boolean indicating if workflow should use the BWA mem aligner; default set to true, but must be set to false to alternatively run the DRAGEN-GATK DRAGMAP aligner. | Boolean | 
 | use_dragen_hard_filtering | Boolean that indicates if workflow should perform hard filtering using the GATK VariantFiltration tool with the --filter-name "DRAGENHardQUAL"; default set to false. | Boolean
 |  read_length | Set to a max of 250 for collecting WGS metrics; specified in the workflow WDL, not in the input JSON. | Int | 
 | lod_threshold | LOD threshold for checking fingerprints; set to -20.0 specified in the workflow WDL, not in the input JSON. | Float | 
@@ -152,14 +154,14 @@ The sections below outline each of the WGS workflow’s tasks and include tables
 **Workflow WDL task name and link:**
 [UnmappedBamToAlignedBam.UnmappedBamToAlignedBam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/UnmappedBamToAlignedBam.wdl)
  
-The table below details the subtasks called by the UnmappedBamToAlignedBam task, which calculates metrics on the unsorted, unaligned BAMs for each readgroup using Picard and then aligns reads using either BWA mem or the DRAGEN Dragmap aligner. It optionally corrects base calling errors with BQSR. It lastly merges individual recalibrated BAM files into an aggregated BAM.
+The table below details the subtasks called by the UnmappedBamToAlignedBam task, which calculates metrics on the unsorted, unaligned BAMs for each readgroup using Picard and then aligns reads using either BWA mem or the DRAGEN DRAGMAP aligner. It optionally corrects base calling errors with BQSR. It lastly merges individual recalibrated BAM files into an aggregated BAM.
  
 | Subtask name (alias) and task WDL link | Tool | Software | Description |
 | --- | --- | --- | --- |
 | [QC.CollectQualityYieldMetrics (CollectQualityYieldMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the unaligned BAM. |
-| [SplitRG.SplitLargeReadGroup (SplitRG)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/SplitLargeReadGroup.wdl) | --- | --- | If the BAM size is large, will split the BAMs; performs alignment using either BWA mem (`use_bwa_mem` = true) or the Dragmap aligner (`use_bwa_mem` = false). |
-| [Alignment.SamToFastqAndBwaMemAndMba (SamToFastqAndBwaMemAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Alignment.wdl) | SamToFastq; MergeBamAlignment | BWA mem, Picard | When `use_bwa_mem` = true, aligns using BWA mem; if `use_bwa_mem` = false, aligns with Dragmap aligner in the DragmapAlignment.SamToFastqAndDragmapAndMba task below. |
-| [DragmapAlignment.SamToFastqAndDragmapAndMba (SamToFastqAndDragmapAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/DragmapAlignment.wdl) | dragen-os, MergeBamAlignment | Dragmap, Picard | When `use_bwa_mem` = false, aligns with the Dragmap aligner. |
+| [SplitRG.SplitLargeReadGroup (SplitRG)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/SplitLargeReadGroup.wdl) | --- | --- | If the BAM size is large, will split the BAMs; performs alignment using either BWA mem (`use_bwa_mem` = true) or the DRAGMAP aligner (`use_bwa_mem` = false). |
+| [Alignment.SamToFastqAndBwaMemAndMba (SamToFastqAndBwaMemAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Alignment.wdl) | SamToFastq; MergeBamAlignment | BWA mem, Picard | When `use_bwa_mem` = true, aligns using BWA mem; if `use_bwa_mem` = false, aligns with DRAGMAP aligner in the DragmapAlignment.SamToFastqAndDragmapAndMba task below. |
+| [DragmapAlignment.SamToFastqAndDragmapAndMba (SamToFastqAndDragmapAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/DragmapAlignment.wdl) | dragen-os, MergeBamAlignment | Dragmap, Picard | When `use_bwa_mem` = false, aligns with the DRAGMAP aligner. |
 | [QC.CollectUnsortedReadgroupBamQualityMetrics (CollectUnsortedReadgroupBamQualityMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned BAMs with unsorted readgroups. | 
 | [Utils.SumFloats (SumFloats)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | --- | python | Sum the individual readgroup BAM sizes to approximate the aggregated BAM size. |
 | [Processing.MarkDuplicates (MarkDuplicates)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | MarkDuplicates | Picard | Marks duplicate reads. |
@@ -309,7 +311,8 @@ The table below describes the final workflow outputs. If running the workflow on
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 - When the pipeline runs in the **dragen_functional_equivalence_mode**, it produces functionally equivalent outputs to the DRAGEN pipeline.
 - Additional information about the GATK tool parameters and the DRAGEN-GATK best practices pipeline can be found on the [GATK support site](https://gatk.broadinstitute.org/hc/en-us).
- 
+
+
 ## Contact us
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
  
