@@ -6,7 +6,7 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.2.0](https://github.com/broadinstitute/warp/releases) | January 6, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/releases) | October 18, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
@@ -18,8 +18,8 @@ The pipeline adheres to the Functional Equivalence pipeline specification ([Regi
  
 :::tip Want to try the WGS pipeline in Terra?
 Two workspaces containing example data and instructions are available to test the WGS pipeline: 
-1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](LINK) to showcase the DRAGEN-GATK pipeline mode
-2. a [Whole-Genome-Analysis-Pipeline workspace](LINK) to showcase the WGS pipeline with joint calling
+1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Germline-Whole-Genome-Pipeline) to showcase the DRAGEN-GATK pipeline mode
+2. a [Whole-Genome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Whole-Genome-Analysis-Pipeline) to showcase the WGS pipeline with joint calling
 :::
  
 ## Running the DRAGEN-GATK implementation of the WGS pipeline
@@ -42,10 +42,10 @@ The WGS workflow can be customized to mix and match different DRAGEN-related par
 
 #### Two DRAGEN modes for configuring the WGS pipeline
 Although the DRAGEN parameters can be turned on and off as needed, there are two mutually exclusive input workflow modes that can automatically configure the DRAGEN-related inputs:
-1. **dragen_functional_equivalency_mode**
+1. **dragen_functional_equivalence_mode**
 2. **dragen_maximum_quality_mode**
 
-The **dragen_functional_equivalency_mode** runs the pipeline so that it is functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
+The **dragen_functional_equivalence_mode** runs the pipeline so that it is functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
 1. `run_dragen_mode_variant_calling` is true.
 2. `use_bwa_mem` is false.
 3. `perform_bqsr` is false.
@@ -122,7 +122,7 @@ Additional inputs that are not contained in a struct are described in the table 
 | wgs_coverage_interval_list | Interval list for the CollectWgsMetrics tool. | File |
 | provide_bam_output | If set to true, provides the aligned BAM and index as workflow output; default set to false. | Boolean |
 | use_gatk3_haplotype_caller | Uses the GATK3.5 HaplotypeCalller; default set to true. | Boolean |
-| dragen_functional_equivalency_mode | Boolean used to run the WGS pipeline in a mode functionally equivalent to DRAGEN; set to false by default. | Boolean |
+| dragen_functional_equivalence_mode | Boolean used to run the WGS pipeline in a mode functionally equivalent to DRAGEN; set to false by default. | Boolean |
 | dragen_maximum_quality_mode | Boolean used to run the pipeline in DRAGEN mode with modifications to produce maximum quality results; set to false by default. | Boolean |
 | run_dragen_mode_variant_calling | Boolean used to indicate that DRAGEN mode should be used for variant calling; default set to false but must be true to compose DRAGstr model and perform variant calling with HaplotypeCaller in dragen-mode. | Boolean |
 | use_spanning_event_genotyping | Boolean used to call the HaplotypeCaller --disable-spanning-event-genotyping parameter; default set to true so that variant calling includes spanning events. Set to false to run the DRAGEN pipeline.  | Boolean |
@@ -307,7 +307,7 @@ The table below describes the final workflow outputs. If running the workflow on
 ## Important notes
  
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
-- When the pipeline runs in the **dragen_functional_equivalency_mode**, it produces functionally equivalent outputs to the DRAGEN pipeline.
+- When the pipeline runs in the **dragen_functional_equivalence_mode**, it produces functionally equivalent outputs to the DRAGEN pipeline.
 - Additional information about the GATK tool parameters and the DRAGEN-GATK best practices pipeline can be found on the [GATK support site](https://gatk.broadinstitute.org/hc/en-us).
  
 ## Contact us
