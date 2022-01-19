@@ -116,6 +116,46 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
+  if (defined(tdr_dataset_uuid) && defined(sample_id)) {
+    call formatPipelineOutputs {
+      input:
+        output_basename = output_basename,
+        transcriptome_bam = RNAWithUMIsPipeline.transcriptome_bam,
+        transcriptome_bam_index = RNAWithUMIsPipeline.transcriptome_bam_index,
+        transcriptome_duplicate_metrics = RNAWithUMIsPipeline.transcriptome_duplicate_metrics,
+        output_bam = RNAWithUMIsPipeline.output_bam,
+        output_bam_index = RNAWithUMIsPipeline.output_bam_index,
+        duplicate_metrics = RNAWithUMIsPipeline.duplicate_metrics,
+        rnaseqc2_gene_tpm = RNAWithUMIsPipeline.rnaseqc2_gene_tpm,
+        rnaseqc2_gene_counts = RNAWithUMIsPipeline.rnaseqc2_gene_counts,
+        rnaseqc2_exon_counts = RNAWithUMIsPipeline.rnaseqc2_exon_counts,
+        rnaseqc2_fragment_size_histogram = RNAWithUMIsPipeline.rnaseqc2_fragment_size_histogram,
+        rnaseqc2_metrics = RNAWithUMIsPipeline.rnaseqc2_metrics,
+        picard_rna_metrics = RNAWithUMIsPipeline.picard_rna_metrics,
+        picard_alignment_summary_metrics = RNAWithUMIsPipeline.picard_alignment_summary_metrics,
+        picard_insert_size_metrics = RNAWithUMIsPipeline.picard_insert_size_metrics,
+        picard_insert_size_histogram = RNAWithUMIsPipeline.picard_insert_size_histogram,
+        picard_base_distribution_by_cycle_metrics = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_metrics,
+        picard_base_distribution_by_cycle_pdf = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_pdf,
+        picard_quality_by_cycle_metrics = RNAWithUMIsPipeline.picard_quality_by_cycle_metrics,
+        picard_quality_by_cycle_pdf = RNAWithUMIsPipeline.picard_quality_by_cycle_pdf,
+        picard_quality_distribution_metrics = RNAWithUMIsPipeline.picard_quality_distribution_metrics,
+        picard_quality_distribution_pdf = RNAWithUMIsPipeline.picard_quality_distribution_pdf,
+        picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
+        picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
+        unified_metrics = RNAWithUMIsPipeline.unified_metrics
+    }
+
+    call updateOutputsInTDR {
+      input:
+        tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
+        outputs_json = formatPipelineOutputs.pipeline_outputs_json,
+        sample_id = select_first([sample_id, ""]),
+        staging_bucket = select_first([tdr_staging_bucket, ""])
+    }
+  }
+
+
   output {
     File transcriptome_bam = RNAWithUMIs.transcriptome_bam
     File transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index
@@ -142,4 +182,284 @@ workflow BroadInternalRNAWithUMIs {
     File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
     File unified_metrics = MergeMetrics.unified_metrics
   }
+}
+
+task formatPipelineOutputs {
+  input {
+    String output_basename
+    File transcriptome_bam
+    File transcriptome_bam_index
+    File transcriptome_duplicate_metrics
+    File output_bam
+    File output_bam_index
+    File duplicate_metrics
+    File rnaseqc2_gene_tpm
+    File rnaseqc2_gene_counts
+    File rnaseqc2_exon_counts
+    File rnaseqc2_fragment_size_histogram
+    File rnaseqc2_metrics
+    File picard_rna_metrics
+    File picard_alignment_summary_metrics
+    File picard_insert_size_metrics
+    File picard_insert_size_histogram
+    File picard_base_distribution_by_cycle_metrics
+    File picard_base_distribution_by_cycle_pdf
+    File picard_quality_by_cycle_metrics
+    File picard_quality_by_cycle_pdf
+    File picard_quality_distribution_metrics
+    File picard_quality_distribution_pdf
+    File? picard_fingerprint_summary_metrics
+    File? picard_fingerprint_detail_metrics
+    File unified_metrics
+  }
+
+  String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+
+  command <<<
+        python3 << CODE
+        import json
+
+        outputs_dict = {}
+
+        # write normal outputs
+        outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
+        outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
+        outputs_dict["transcriptome_duplicate_metrics"]="~{transcriptome_duplicate_metrics}"
+        outputs_dict["output_bam"]="~{output_bam}"
+        outputs_dict["output_bam_index"]="~{output_bam_index}"
+        outputs_dict["duplicate_metrics"]="~{duplicate_metrics}"
+        outputs_dict["rnaseqc2_gene_tpm"]="~{rnaseqc2_gene_tpm}"
+        outputs_dict["rnaseqc2_gene_counts"]="~{rnaseqc2_gene_counts}"
+        outputs_dict["rnaseqc2_exon_counts"]="~{rnaseqc2_exon_counts}"
+        outputs_dict["rnaseqc2_fragment_size_histogram"]="~{rnaseqc2_fragment_size_histogram}"
+        outputs_dict["rnaseqc2_metrics"]="~{rnaseqc2_metrics}"
+        outputs_dict["picard_rna_metrics"]="~{picard_rna_metrics}"
+        outputs_dict["picard_alignment_summary_metrics"]="~{picard_alignment_summary_metrics}"
+        outputs_dict["picard_insert_size_metrics"]="~{picard_insert_size_metrics}"
+        outputs_dict["picard_insert_size_histogram"]="~{picard_insert_size_histogram}"
+        outputs_dict["picard_base_distribution_by_cycle_metrics"]="~{picard_base_distribution_by_cycle_metrics}"
+        outputs_dict["picard_base_distribution_by_cycle_pdf"]="~{picard_base_distribution_by_cycle_pdf}"
+        outputs_dict["picard_quality_by_cycle_metrics"]="~{picard_quality_by_cycle_metrics}"
+        outputs_dict["picard_quality_by_cycle_pdf"]="~{picard_quality_by_cycle_pdf}"
+        outputs_dict["picard_quality_distribution_metrics"]="~{picard_quality_distribution_metrics}"
+        outputs_dict["picard_quality_distribution_pdf"]="~{picard_quality_distribution_pdf}"
+        outputs_dict["picard_fingerprint_summary_metrics"]="~{picard_fingerprint_summary_metrics}"
+        outputs_dict["picard_fingerprint_detail_metrics"]="~{picard_fingerprint_detail_metrics}"
+
+        # explode unified metrics file
+        with open("~{unified_metrics}", "r") as infile:
+            for row in infile:
+                key, value = row.rstrip("\n").split("\t")
+                outputs_dict[key] = value
+
+        # write full outputs to file
+        with open("~{outputs_json_file_name}", 'w') as outputs_file:
+            for key, value in outputs_dict.items():
+                if value == "None":
+                    sample_json[key] = None
+            outputs_file.write(json.dumps(sample_json))
+            outputs_file.write("\n")
+        CODE
+    >>>
+
+  runtime {
+      docker: "broadinstitute/horsefish:emerge_scripts"
+  }
+
+  output {
+      File pipeline_outputs_json = outputs_json_file_name
+  }
+}
+
+task updateOutputsInTDR {
+  input {
+    String staging_bucket
+    String tdr_dataset_uuid
+    File outputs_json
+    String sample_id
+  }
+
+  String tdr_target_table = "sample"
+
+  command <<<
+        python3 << CODE
+        import json
+        import requests
+        import pandas as pd
+        from google.cloud import bigquery
+        from google.cloud import storage as gcs
+        from oauth2client.client import GoogleCredentials
+        from pprint import pprint
+        from time import sleep
+
+        # populate variables from inputs
+        bucket = "~{staging_bucket}".replace("gs://","")
+        dataset_id = "~{tdr_dataset_uuid}"
+        target_table = "~{tdr_target_table}"
+        outputs_json = "~{outputs_json}"
+        sample_id = "~{sample_id}"
+
+        # define some utils functions
+        def get_access_token():
+            """Get access token."""
+            scopes = ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"]
+            credentials = GoogleCredentials.get_application_default()
+            credentials = credentials.create_scoped(scopes)
+            return credentials.get_access_token().access_token
+
+        def get_headers(request_type='get'):
+            headers = {"Authorization": "Bearer " + get_access_token(),
+                      "accept": "application/json"}
+            if request_type == 'post':
+                headers["Content-Type"] = "application/json"
+            return headers
+
+        def write_file_to_bucket(filename, bucket):
+            dir = "tdr"
+            control_file_destination = f"{bucket}/{dir}"
+            storage_client = gcs.Client()
+            dest_bucket = storage_client.get_bucket(bucket)
+            blob = dest_bucket.blob(f"control_files/{filename}")
+            blob.upload_from_filename(filename)
+            control_file_full_path = f"gs://{bucket}/{dir}/{filename}"
+            print(f"Successfully copied {loading_json_filename} to {control_file_full_path}.")
+            return control_file_full_path
+
+        def wait_for_job_status_and_result(job_id, wait_sec=10):
+            # first check job status
+            uri = f"https://data.terra.bio/api/repository/v1/jobs/{job_id}"
+
+            headers = get_headers()
+            response = requests.get(uri, headers=headers)
+            status_code = response.status_code
+
+            while status_code == 202:
+                print(f"job running. checking again in {wait_sec} seconds")
+                sleep(wait_sec)
+                response = requests.get(uri, headers=headers)
+                status_code = response.status_code
+
+            if status_code != 200:
+                print(f"error retrieving status for job_id {job_id}")
+                return response.text
+
+            job_status = response.json()['job_status']
+            print(f'job_id {job_id} has status {job_status}')
+            # if job status = done, check job result
+            if job_status in ['succeeded', 'failed']:
+                print('retrieving job result')
+                response = requests.get(uri + "/result", headers=headers)
+
+            return job_status, response.json()
+
+
+        # read workflow outputs from file
+        print(f"reading data from outputs_json file {outputs_json}")
+        with open(outputs_json, "r") as infile:
+            outputs_to_load = json.load(info)
+
+        # recode any paths (files) for TDR ingest
+        print("recoding paths for TDR ingest")
+        for k in outputs_to_load.keys():
+            v = outputs_to_load[k]
+            if v is not None and "gs://" in v:
+                outputs_to_load[k] = {
+                    "sourcePath": v,
+                    "targetPath": v.replace("gs://", "/")
+                }
+
+        # get BQ access info for TDR dataset
+        print("retrieving BQ access info for TDR dataset")
+        uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}?include=ACCESS_INFORMATION"
+        response = requests.get(uri, headers=get_headers())
+        tables = response.json()['accessInformation']['bigQuery']['tables']
+        dataset_table_fq = None  # fq = fully qualified name, i.e. project.dataset.table
+        for table_info in tables:
+            if table_info['name'] == target_table:
+                dataset_table_fq = table_info['qualifiedName']
+
+        # retrieve data for this sample
+        print(f"retrieving data for sample_id {sample_id} from {dataset_table_fq}")
+        bq = bigquery.Client(gcp_project)
+        query = f"SELECT * FROM `{dataset_table_fq}` WHERE sample_id = '{sample_id}'"
+        executed_query = bq.query(query)
+        result = executed_query.result()
+        df_result = result.to_dataframe()
+
+        # break if there's more than one row in TDR for this sample
+        print(f"retrieved {len(df_result)} samples matching sample_id {sample_id}")
+        assert(len(df_result) == 1)
+
+        # format to a dictionary
+        print("formatting results to dictionary")
+        input_data_list = []
+        for row_id in df.index:
+            row_dict = {}
+            for col in df.columns:
+                if isinstance(df[col][row_id], pd._libs.tslibs.nattype.NaTType):
+                    value = None
+                else:
+                    value = df[col][row_id]
+                if value is not None:  # don't include empty values
+                    row_dict[col] = value
+            input_data_list.append(row_dict)
+
+        sample_data_dict = input_data_list[0]
+
+        # update original sample data with workflow outputs
+        sample_data_dict.update(outputs_to_load)
+        # remove and store datarepo_row_id
+        old_datarepo_row_id = sample_data_dict.pop('datarepo_row_id')
+        # update version_timestamp field
+        new_version_timestamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
+        sample_data_dict['version_timestamp'] = new_version_timestamp
+
+        # write update json to disk and upload to staging bucket
+        loading_json_filename = f"{version_timestamp}_recoded_ingestDataset.json"
+        with open(loading_json_filename, 'w') as outfile:
+            outputs_file.write(json.dumps(sample_data_dict))
+            outputs_file.write("\n")
+        load_file_full_path = write_file_to_bucket(loading_json_filename, bucket)
+
+        # ingest data to TDR
+        load_json = json.dumps({"format": "json",
+                            "path": load_file_full_path,
+                            "table": target_table,
+                            "resolve_existing_files": True,
+                            })
+        uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/ingest"
+        response = requests.post(uri, headers=get_headers('post'), data=load_json)
+        load_job_id = response.json()['id']
+        job_status, _ = wait_for_job_status_and_result(load_job_id)
+        assert job_status == "succeeded"
+
+        # soft delete old row
+        soft_delete_file = 'soft_delete.txt'
+        with open(soft_delete_file, 'w') as infile:
+            infile.write(old_datarepo_row_id + '\n')
+        full_sd_path = write_file_to_bucket(soft_delete_file, bucket)
+        soft_delete_data = json.dumps({
+              "deleteType": "soft", 
+              "specType": "gcsFile",
+              "tables": [
+                {"gcsFileSpec": {"fileType": "csv", "path": full_sd_path},
+                 "tableName": table_name}
+              ]})
+        uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/deletes"
+        response = requests.post(uri, headers=get_headers('post'), data=soft_delete_data)
+        sd_job_id = response.json()['id']
+
+        job_status, _ = wait_for_job_status_and_result(sd_job_id)
+        assert job_status == "succeeded"
+
+        CODE
+    >>>
+
+    runtime {
+        docker: "broadinstitute/horsefish:emerge_scripts"
+    }
+
+    output {
+        File ingest_logs = stdout()
+    }
 }
