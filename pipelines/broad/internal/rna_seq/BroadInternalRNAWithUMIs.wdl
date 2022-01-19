@@ -121,7 +121,7 @@ workflow BroadInternalRNAWithUMIs {
       picard_rna_metrics = RNAWithUMIs.picard_rna_metrics,
       duplicate_metrics = RNAWithUMIs.duplicate_metrics,
       rnaseqc2_metrics = RNAWithUMIs.rnaseqc2_metrics,
-      fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
+      fingerprint_summary_metrics = "", #CheckFingerprint.fingerprint_summary_metrics_file,
       output_basename = RNAWithUMIs.sample_name
   }
 
@@ -150,8 +150,8 @@ workflow BroadInternalRNAWithUMIs {
         picard_quality_by_cycle_pdf = RNAWithUMIs.picard_quality_by_cycle_pdf,
         picard_quality_distribution_metrics = RNAWithUMIs.picard_quality_distribution_metrics,
         picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf,
-        picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
-        picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
+        picard_fingerprint_summary_metrics = "", #CheckFingerprint.fingerprint_summary_metrics_file,
+        picard_fingerprint_detail_metrics = "", #CheckFingerprint.fingerprint_detail_metrics_file,
         unified_metrics = MergeMetrics.unified_metrics
     }
 
@@ -187,8 +187,8 @@ workflow BroadInternalRNAWithUMIs {
     File picard_quality_by_cycle_pdf = RNAWithUMIs.picard_quality_by_cycle_pdf
     File picard_quality_distribution_metrics = RNAWithUMIs.picard_quality_distribution_metrics
     File picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf
-    File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
-    File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
+    # File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
+    # File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
     File unified_metrics = MergeMetrics.unified_metrics
   }
 }
@@ -217,8 +217,8 @@ task formatPipelineOutputs {
     File picard_quality_by_cycle_pdf
     File picard_quality_distribution_metrics
     File picard_quality_distribution_pdf
-    File? picard_fingerprint_summary_metrics
-    File? picard_fingerprint_detail_metrics
+    File picard_fingerprint_summary_metrics
+    File picard_fingerprint_detail_metrics
     File unified_metrics
   }
 
