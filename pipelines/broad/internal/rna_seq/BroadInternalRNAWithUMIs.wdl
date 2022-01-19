@@ -33,7 +33,7 @@ workflow BroadInternalRNAWithUMIs {
 
     # Terra Data Repo dataset information
     String? tdr_dataset_uuid
-    String? sample_id
+    String? tdr_sample_id
     String? tdr_staging_bucket
   }
 
@@ -63,7 +63,7 @@ workflow BroadInternalRNAWithUMIs {
     environment: "The environment (dev or prod) used for determining which service to use to retrieve Mercury fingerprints"
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
     tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
-    sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
+    tdr_sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
     tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
 
   }
@@ -125,7 +125,7 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(sample_id)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
     call formatPipelineOutputs {
       input:
         output_basename = output_basename,
@@ -159,7 +159,7 @@ workflow BroadInternalRNAWithUMIs {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
         outputs_json = formatPipelineOutputs.pipeline_outputs_json,
-        sample_id = select_first([sample_id, ""]),
+        sample_id = select_first([tdr_sample_id, ""]),
         staging_bucket = select_first([tdr_staging_bucket, ""])
     }
   }
