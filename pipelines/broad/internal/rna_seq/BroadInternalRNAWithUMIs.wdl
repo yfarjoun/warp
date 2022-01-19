@@ -30,6 +30,11 @@ workflow BroadInternalRNAWithUMIs {
 
     String environment
     File vault_token_path
+
+    # Terra Data Repo dataset information
+    String? tdr_dataset_uuid
+    String? sample_id
+    String? tdr_staging_bucket
   }
 
   File starIndex = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz" else "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz"
@@ -57,6 +62,10 @@ workflow BroadInternalRNAWithUMIs {
     sequencing_center: "String used to describe the sequencing center; default is set to 'BI'"
     environment: "The environment (dev or prod) used for determining which service to use to retrieve Mercury fingerprints"
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
+    tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
+    sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
+    tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
+
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -120,30 +129,30 @@ workflow BroadInternalRNAWithUMIs {
     call formatPipelineOutputs {
       input:
         output_basename = output_basename,
-        transcriptome_bam = RNAWithUMIsPipeline.transcriptome_bam,
-        transcriptome_bam_index = RNAWithUMIsPipeline.transcriptome_bam_index,
-        transcriptome_duplicate_metrics = RNAWithUMIsPipeline.transcriptome_duplicate_metrics,
-        output_bam = RNAWithUMIsPipeline.output_bam,
-        output_bam_index = RNAWithUMIsPipeline.output_bam_index,
-        duplicate_metrics = RNAWithUMIsPipeline.duplicate_metrics,
-        rnaseqc2_gene_tpm = RNAWithUMIsPipeline.rnaseqc2_gene_tpm,
-        rnaseqc2_gene_counts = RNAWithUMIsPipeline.rnaseqc2_gene_counts,
-        rnaseqc2_exon_counts = RNAWithUMIsPipeline.rnaseqc2_exon_counts,
-        rnaseqc2_fragment_size_histogram = RNAWithUMIsPipeline.rnaseqc2_fragment_size_histogram,
-        rnaseqc2_metrics = RNAWithUMIsPipeline.rnaseqc2_metrics,
-        picard_rna_metrics = RNAWithUMIsPipeline.picard_rna_metrics,
-        picard_alignment_summary_metrics = RNAWithUMIsPipeline.picard_alignment_summary_metrics,
-        picard_insert_size_metrics = RNAWithUMIsPipeline.picard_insert_size_metrics,
-        picard_insert_size_histogram = RNAWithUMIsPipeline.picard_insert_size_histogram,
-        picard_base_distribution_by_cycle_metrics = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_metrics,
-        picard_base_distribution_by_cycle_pdf = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_pdf,
-        picard_quality_by_cycle_metrics = RNAWithUMIsPipeline.picard_quality_by_cycle_metrics,
-        picard_quality_by_cycle_pdf = RNAWithUMIsPipeline.picard_quality_by_cycle_pdf,
-        picard_quality_distribution_metrics = RNAWithUMIsPipeline.picard_quality_distribution_metrics,
-        picard_quality_distribution_pdf = RNAWithUMIsPipeline.picard_quality_distribution_pdf,
+        transcriptome_bam = RNAWithUMIs.transcriptome_bam,
+        transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index,
+        transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics,
+        output_bam = RNAWithUMIs.output_bam,
+        output_bam_index = RNAWithUMIs.output_bam_index,
+        duplicate_metrics = RNAWithUMIs.duplicate_metrics,
+        rnaseqc2_gene_tpm = RNAWithUMIs.rnaseqc2_gene_tpm,
+        rnaseqc2_gene_counts = RNAWithUMIs.rnaseqc2_gene_counts,
+        rnaseqc2_exon_counts = RNAWithUMIs.rnaseqc2_exon_counts,
+        rnaseqc2_fragment_size_histogram = RNAWithUMIs.rnaseqc2_fragment_size_histogram,
+        rnaseqc2_metrics = RNAWithUMIs.rnaseqc2_metrics,
+        picard_rna_metrics = RNAWithUMIs.picard_rna_metrics,
+        picard_alignment_summary_metrics = RNAWithUMIs.picard_alignment_summary_metrics,
+        picard_insert_size_metrics = RNAWithUMIs.picard_insert_size_metrics,
+        picard_insert_size_histogram = RNAWithUMIs.picard_insert_size_histogram,
+        picard_base_distribution_by_cycle_metrics = RNAWithUMIs.picard_base_distribution_by_cycle_metrics,
+        picard_base_distribution_by_cycle_pdf = RNAWithUMIs.picard_base_distribution_by_cycle_pdf,
+        picard_quality_by_cycle_metrics = RNAWithUMIs.picard_quality_by_cycle_metrics,
+        picard_quality_by_cycle_pdf = RNAWithUMIs.picard_quality_by_cycle_pdf,
+        picard_quality_distribution_metrics = RNAWithUMIs.picard_quality_distribution_metrics,
+        picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf,
         picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
         picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
-        unified_metrics = RNAWithUMIsPipeline.unified_metrics
+        unified_metrics = MergeMetrics.unified_metrics
     }
 
     call updateOutputsInTDR {
