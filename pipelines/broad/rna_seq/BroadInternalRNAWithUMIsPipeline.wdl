@@ -28,6 +28,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
     # Terra Data Repo dataset information
     String? tdr_dataset_uuid
     String? sample_id
+    String? tdr_staging_bucket
   }
 
   File starIndex = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz" else "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz"
@@ -53,6 +54,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
     sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to 'BI'"
     tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
     sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
+    tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -116,8 +118,9 @@ workflow BroadInternalRNAWithUMIsPipeline {
     call updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        outputs_json = fomatPipelineOutputs.pipeline_outputs_json,
-        sample_id = select_first([sample_id, ""])
+        outputs_json = formatPipelineOutputs.pipeline_outputs_json,
+        sample_id = select_first([sample_id, ""]),
+        staging_bucket = select_first([tdr_staging_bucket, ""])
     }
   }
 
