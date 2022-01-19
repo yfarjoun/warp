@@ -98,21 +98,21 @@ workflow BroadInternalRNAWithUMIs {
       exonBedFile = exonBedFile
   }
 
-  call FP.CheckFingerprint as CheckFingerprint {
-    input:
-      input_bam = RNAWithUMIs.output_bam,
-      input_bam_index = RNAWithUMIs.output_bam_index,
-      sample_alias = RNAWithUMIs.sample_name,
-      sample_lsid = sample_lsid,
-      output_basename = output_basename,
-      ref_fasta = ref,
-      ref_fasta_index = refIndex,
-      ref_dict = refDict,
-      read_fingerprint_from_mercury = true,
-      haplotype_database_file = haplotype_database_file,
-      environment = environment,
-      vault_token_path = vault_token_path
-  }
+  # call FP.CheckFingerprint as CheckFingerprint {
+  #   input:
+  #     input_bam = RNAWithUMIs.output_bam,
+  #     input_bam_index = RNAWithUMIs.output_bam_index,
+  #     sample_alias = RNAWithUMIs.sample_name,
+  #     sample_lsid = sample_lsid,
+  #     output_basename = output_basename,
+  #     ref_fasta = ref,
+  #     ref_fasta_index = refIndex,
+  #     ref_dict = refDict,
+  #     read_fingerprint_from_mercury = true,
+  #     haplotype_database_file = haplotype_database_file,
+  #     environment = environment,
+  #     vault_token_path = vault_token_path
+  # }
 
   call tasks.MergeMetrics {
     input:
