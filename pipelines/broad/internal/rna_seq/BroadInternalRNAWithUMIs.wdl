@@ -252,8 +252,7 @@ task formatPipelineOutputs {
         outputs_dict["picard_quality_by_cycle_pdf_file"]="~{picard_quality_by_cycle_pdf}"
         outputs_dict["picard_quality_distribution_metrics_file"]="~{picard_quality_distribution_metrics}"
         outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
-        # outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
-        # outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
+        # TODO add back 2 fp metrics files
 
         # explode unified metrics file
         with open("~{unified_metrics}", "r") as infile:
