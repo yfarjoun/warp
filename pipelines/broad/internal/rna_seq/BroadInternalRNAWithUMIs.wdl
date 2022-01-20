@@ -121,7 +121,7 @@ workflow BroadInternalRNAWithUMIs {
       picard_rna_metrics = RNAWithUMIs.picard_rna_metrics,
       duplicate_metrics = RNAWithUMIs.duplicate_metrics,
       rnaseqc2_metrics = RNAWithUMIs.rnaseqc2_metrics,
-      fingerprint_summary_metrics = "", #CheckFingerprint.fingerprint_summary_metrics_file,
+      # fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
       output_basename = RNAWithUMIs.sample_name
   }
 
