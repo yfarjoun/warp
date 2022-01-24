@@ -192,28 +192,28 @@ workflow BroadInternalRNAWithUMIs {
 task formatPipelineOutputs {
   input {
     String output_basename
-    File transcriptome_bam
-    File transcriptome_bam_index
-    File transcriptome_duplicate_metrics
-    File output_bam
-    File output_bam_index
-    File duplicate_metrics
-    File rnaseqc2_gene_tpm
-    File rnaseqc2_gene_counts
-    File rnaseqc2_exon_counts
-    File rnaseqc2_fragment_size_histogram
-    File rnaseqc2_metrics
-    File picard_rna_metrics
-    File picard_alignment_summary_metrics
-    File picard_insert_size_metrics
-    File picard_insert_size_histogram
-    File picard_base_distribution_by_cycle_metrics
-    File picard_base_distribution_by_cycle_pdf
-    File picard_quality_by_cycle_metrics
-    File picard_quality_by_cycle_pdf
-    File picard_quality_distribution_metrics
-    File picard_quality_distribution_pdf
-    File unified_metrics
+    String transcriptome_bam
+    String transcriptome_bam_index
+    String transcriptome_duplicate_metrics
+    String output_bam
+    String output_bam_index
+    String duplicate_metrics
+    String rnaseqc2_gene_tpm
+    String rnaseqc2_gene_counts
+    String rnaseqc2_exon_counts
+    String rnaseqc2_fragment_size_histogram
+    String rnaseqc2_metrics
+    String picard_rna_metrics
+    String picard_alignment_summary_metrics
+    String picard_insert_size_metrics
+    String picard_insert_size_histogram
+    String picard_base_distribution_by_cycle_metrics
+    String picard_base_distribution_by_cycle_pdf
+    String picard_quality_by_cycle_metrics
+    String picard_quality_by_cycle_pdf
+    String picard_quality_distribution_metrics
+    String picard_quality_distribution_pdf
+    String unified_metrics
   }
 
   String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
