@@ -213,7 +213,7 @@ task formatPipelineOutputs {
     String picard_quality_by_cycle_pdf
     String picard_quality_distribution_metrics
     String picard_quality_distribution_pdf
-    String unified_metrics
+    File unified_metrics
   }
 
   String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
