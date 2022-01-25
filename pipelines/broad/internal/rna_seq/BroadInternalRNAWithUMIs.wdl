@@ -411,7 +411,7 @@ task updateOutputsInTDR {
             for col in df_result.columns:
                 if isinstance(df_result[col][row_id], pd._libs.tslibs.nattype.NaTType):
                     value = None
-                elif not isinstance(df_result[col][row_id], String):
+                elif not isinstance(df_result[col][row_id], str):
                     print(f"non-String field {col} (value: {df_result[col][row_id]} is type {type(df_result[col][row_id])}")
                 else:
                     value = df_result[col][row_id]
