@@ -35,6 +35,7 @@ workflow BroadInternalRNAWithUMIs {
     String? tdr_dataset_uuid
     String? tdr_sample_id
     String? tdr_staging_bucket
+    String? tdr_gcp_project_for_query
   }
 
   File starIndex = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz" else "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz"
@@ -65,7 +66,7 @@ workflow BroadInternalRNAWithUMIs {
     tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
     tdr_sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
     tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
-
+    tdr_gcp_project_for_query: "Optional String defining the GCP project to use to query the TDR dataset in BigQuery"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -125,7 +126,7 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket) && defined(tdr_gcp_project_for_query)) {
     call formatPipelineOutputs {
       input:
         output_basename = output_basename,
@@ -156,6 +157,7 @@ workflow BroadInternalRNAWithUMIs {
     call updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
+        tdr_gcp_project_for_query = select_first([tdr_gcp_project_for_query, ""]),
         outputs_json = formatPipelineOutputs.pipeline_outputs_json,
         sample_id = select_first([tdr_sample_id, ""]),
         staging_bucket = select_first([tdr_staging_bucket, ""])
@@ -277,6 +279,7 @@ task updateOutputsInTDR {
   input {
     String staging_bucket
     String tdr_dataset_uuid
+    String tdr_gcp_project_for_query
     File outputs_json
     String sample_id
   }
@@ -382,7 +385,7 @@ task updateOutputsInTDR {
 
         # retrieve data for this sample
         print(f"retrieving data for sample_id {sample_id} from {dataset_table_fq}")
-        bq = bigquery.Client(gcp_project)
+        bq = bigquery.Client(tdr_gcp_project_for_query)
         query = f"SELECT * FROM `{dataset_table_fq}` WHERE sample_id = '{sample_id}'"
         executed_query = bq.query(query)
         result = executed_query.result()
