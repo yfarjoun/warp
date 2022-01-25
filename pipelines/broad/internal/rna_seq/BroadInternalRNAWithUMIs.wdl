@@ -428,7 +428,7 @@ task updateOutputsInTDR {
         sample_data_dict['version_timestamp'] = new_version_timestamp
 
         # write update json to disk and upload to staging bucket
-        loading_json_filename = f"{version_timestamp}_recoded_ingestDataset.json"
+        loading_json_filename = f"{new_version_timestamp}_recoded_ingestDataset.json"
         with open(loading_json_filename, 'w') as outfile:
             outfile.write(json.dumps(sample_data_dict))
             outfile.write("\n")
