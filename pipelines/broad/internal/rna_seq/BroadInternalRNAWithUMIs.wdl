@@ -303,6 +303,7 @@ task updateOutputsInTDR {
         target_table = "~{tdr_target_table}"
         outputs_json = "~{outputs_json}"
         sample_id = "~{sample_id}"
+        gcp_project_for_query = "~{tdr_gcp_project_for_query}"
 
         # define some utils functions
         def get_access_token():
@@ -385,7 +386,7 @@ task updateOutputsInTDR {
 
         # retrieve data for this sample
         print(f"retrieving data for sample_id {sample_id} from {dataset_table_fq}")
-        bq = bigquery.Client(tdr_gcp_project_for_query)
+        bq = bigquery.Client(gcp_project_for_query)
         query = f"SELECT * FROM `{dataset_table_fq}` WHERE sample_id = '{sample_id}'"
         executed_query = bq.query(query)
         result = executed_query.result()
