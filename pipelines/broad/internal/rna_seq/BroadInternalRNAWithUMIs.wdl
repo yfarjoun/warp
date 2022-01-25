@@ -391,7 +391,7 @@ task updateOutputsInTDR {
         print("using query:" + query)
 
         executed_query = bq.query(query)
-        result = executed_query.result()
+        results = executed_query.result()
 
         # this avoids the pyarrow error that arises if we use `df_result = result.to_dataframe()`
         df = results.to_dataframe_iterable()
@@ -405,13 +405,13 @@ task updateOutputsInTDR {
         # format to a dictionary
         print("formatting results to dictionary")
         input_data_list = []
-        for row_id in df.index:
+        for row_id in df_result.index:
             row_dict = {}
-            for col in df.columns:
-                if isinstance(df[col][row_id], pd._libs.tslibs.nattype.NaTType):
+            for col in df_result.columns:
+                if isinstance(df_result[col][row_id], pd._libs.tslibs.nattype.NaTType):
                     value = None
                 else:
-                    value = df[col][row_id]
+                    value = df_result[col][row_id]
                 if value is not None:  # don't include empty values
                     row_dict[col] = value
             input_data_list.append(row_dict)
@@ -429,8 +429,8 @@ task updateOutputsInTDR {
         # write update json to disk and upload to staging bucket
         loading_json_filename = f"{version_timestamp}_recoded_ingestDataset.json"
         with open(loading_json_filename, 'w') as outfile:
-            outputs_file.write(json.dumps(sample_data_dict))
-            outputs_file.write("\n")
+            outfile.write(json.dumps(sample_data_dict))
+            outfile.write("\n")
         load_file_full_path = write_file_to_bucket(loading_json_filename, bucket)
 
         # ingest data to TDR
