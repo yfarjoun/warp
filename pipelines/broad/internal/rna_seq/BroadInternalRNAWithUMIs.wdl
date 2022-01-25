@@ -348,7 +348,7 @@ task updateOutputsInTDR {
 
             if status_code != 200:
                 print(f"error retrieving status for job_id {job_id}")
-                return response.text
+                return "internal error", response.text
 
             job_status = response.json()['job_status']
             print(f'job_id {job_id} has status {job_status}')
@@ -412,9 +412,9 @@ task updateOutputsInTDR {
                 if isinstance(df_result[col][row_id], pd._libs.tslibs.nattype.NaTType):
                     value = None
                 elif isinstance(df_result[col][row_id], pd._libs.tslibs.timestamps.Timestamp):
-                    print('processing timestamp. value pre-formatting: {df_result[col][row_id]}')
+                    print(f'processing timestamp. value pre-formatting: {df_result[col][row_id]}')
                     formatted_timestamp = df_result[col][row_id].strftime('%Y-%m-%dT%H:%M:%S')
-                    print('value post-formatting: {formatted_timestamp}')
+                    print(f'value post-formatting: {formatted_timestamp}')
                     value = formatted_timestamp
                 else:
                     value = df_result[col][row_id]
@@ -449,8 +449,10 @@ task updateOutputsInTDR {
         uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/ingest"
         response = requests.post(uri, headers=get_headers('post'), data=load_json)
         load_job_id = response.json()['id']
-        job_status, _ = wait_for_job_status_and_result(load_job_id)
-        assert job_status == "succeeded"
+        job_status, job_info = wait_for_job_status_and_result(load_job_id)
+        if job_status != "succeeded":
+            print(f"job status {job_status}:")
+            print(job_inf0)
 
         # soft delete old row
         soft_delete_data = json.dumps({
@@ -464,8 +466,10 @@ task updateOutputsInTDR {
         response = requests.post(uri, headers=get_headers('post'), data=soft_delete_data)
         sd_job_id = response.json()['id']
 
-        job_status, _ = wait_for_job_status_and_result(sd_job_id)
-        assert job_status == "succeeded"
+        job_status, job_info = wait_for_job_status_and_result(sd_job_id)
+        if job_status != "succeeded":
+            print(f"job status {job_status}:")
+            print(job_inf0)
 
         CODE
     >>>
