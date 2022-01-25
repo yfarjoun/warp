@@ -288,6 +288,7 @@ task updateOutputsInTDR {
 
   command <<<
         python3 << CODE
+        import datetime
         import json
         import requests
         import pandas as pd
@@ -387,7 +388,7 @@ task updateOutputsInTDR {
         # retrieve data for this sample
         print(f"retrieving data for sample_id {sample_id} from {dataset_table_fq}")
         bq = bigquery.Client(gcp_project_for_query)
-        query = "SELECT * FROM \`" + dataset_table_fq + "\` WHERE sample_id = '" + sample_id + "'"
+        query = f"SELECT * FROM \`{dataset_table_fq}\` WHERE sample_id = '{sample_id}'"
         print("using query:" + query)
 
         executed_query = bq.query(query)
@@ -446,15 +447,11 @@ task updateOutputsInTDR {
         assert job_status == "succeeded"
 
         # soft delete old row
-        soft_delete_file = 'soft_delete.txt'
-        with open(soft_delete_file, 'w') as infile:
-            infile.write(old_datarepo_row_id + '\n')
-        full_sd_path = write_file_to_bucket(soft_delete_file, bucket)
         soft_delete_data = json.dumps({
               "deleteType": "soft", 
-              "specType": "gcsFile",
+              "specType": "jsonArray",
               "tables": [
-                {"gcsFileSpec": {"fileType": "csv", "path": full_sd_path},
+                {"jsonArraySpec": {"rowIds": old_datarepo_row_id},
                  "tableName": table_name}
               ]})
         uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/deletes"
