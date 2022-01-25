@@ -411,6 +411,8 @@ task updateOutputsInTDR {
             for col in df_result.columns:
                 if isinstance(df_result[col][row_id], pd._libs.tslibs.nattype.NaTType):
                     value = None
+                elif not isinstance(df_result[col][row_id], String):
+                    print(f"non-String field {col} (value: {df_result[col][row_id]} is type {type(df_result[col][row_id])}")
                 else:
                     value = df_result[col][row_id]
                 if value is not None:  # don't include empty values
@@ -430,6 +432,7 @@ task updateOutputsInTDR {
         # write update json to disk and upload to staging bucket
         loading_json_filename = f"{new_version_timestamp}_recoded_ingestDataset.json"
         with open(loading_json_filename, 'w') as outfile:
+            pprint(sample_data_dict)
             outfile.write(json.dumps(sample_data_dict))
             outfile.write("\n")
         load_file_full_path = write_file_to_bucket(loading_json_filename, bucket)
