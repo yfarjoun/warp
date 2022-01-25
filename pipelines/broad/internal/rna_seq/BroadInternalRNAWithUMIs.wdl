@@ -358,7 +358,7 @@ task updateOutputsInTDR {
         # read workflow outputs from file
         print(f"reading data from outputs_json file {outputs_json}")
         with open(outputs_json, "r") as infile:
-            outputs_to_load = json.load(info)
+            outputs_to_load = json.load(infile)
 
         # recode any paths (files) for TDR ingest
         print("recoding paths for TDR ingest")
