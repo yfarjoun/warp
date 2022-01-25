@@ -392,7 +392,11 @@ task updateOutputsInTDR {
 
         executed_query = bq.query(query)
         result = executed_query.result()
-        df_result = result.to_dataframe()
+
+        # this avoids the pyarrow error that arises if we use `df_result = result.to_dataframe()`
+        df = results.to_dataframe_iterable()
+        reader = next(df)
+        df_result = pd.DataFrame(reader)
 
         # break if there's more than one row in TDR for this sample
         print(f"retrieved {len(df_result)} samples matching sample_id {sample_id}")
