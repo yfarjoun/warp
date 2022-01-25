@@ -411,8 +411,11 @@ task updateOutputsInTDR {
             for col in df_result.columns:
                 if isinstance(df_result[col][row_id], pd._libs.tslibs.nattype.NaTType):
                     value = None
-                elif not isinstance(df_result[col][row_id], str):
-                    print(f"non-String field {col} (value: {df_result[col][row_id]} is type {type(df_result[col][row_id])}")
+                elif isinstance(df_result[col][row_id], pd._libs.tslibs.timestamps.Timestamp):
+                    print('processing timestamp. value pre-formatting: {df_result[col][row_id]}')
+                    formatted_timestamp = df_result[col][row_id].strftime('%Y-%m-%dT%H:%M:%S')
+                    print('value post-formatting: {formatted_timestamp}')
+                    value = formatted_timestamp
                 else:
                     value = df_result[col][row_id]
                 if value is not None:  # don't include empty values
