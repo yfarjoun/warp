@@ -387,7 +387,7 @@ task updateOutputsInTDR {
         # retrieve data for this sample
         print(f"retrieving data for sample_id {sample_id} from {dataset_table_fq}")
         bq = bigquery.Client(gcp_project_for_query)
-        query = "SELECT * FROM `" + dataset_table_fq + "` WHERE sample_id = '" + sample_id + "'"
+        query = "SELECT * FROM \`" + dataset_table_fq + "\` WHERE sample_id = '" + sample_id + "'"
         print("using query:" + query)
 
         executed_query = bq.query(query)
