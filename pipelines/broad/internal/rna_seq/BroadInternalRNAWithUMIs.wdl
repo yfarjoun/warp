@@ -433,7 +433,7 @@ task updateOutputsInTDR {
         sample_data_dict['version_timestamp'] = new_version_timestamp
 
         # write update json to disk and upload to staging bucket
-        loading_json_filename = f"{new_version_timestamp}_recoded_ingestDataset.json"
+        loading_json_filename = f"{sample_id}_{new_version_timestamp}_recoded_ingestDataset.json"
         with open(loading_json_filename, 'w') as outfile:
             pprint(sample_data_dict)
             outfile.write(json.dumps(sample_data_dict))
@@ -460,7 +460,7 @@ task updateOutputsInTDR {
               "specType": "jsonArray",
               "tables": [
                 {"jsonArraySpec": {"rowIds": old_datarepo_row_id},
-                 "tableName": table_name}
+                 "tableName": target_table}
               ]})
         uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/deletes"
         response = requests.post(uri, headers=get_headers('post'), data=soft_delete_data)
