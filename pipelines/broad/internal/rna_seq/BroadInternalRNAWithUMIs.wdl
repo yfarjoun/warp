@@ -456,6 +456,7 @@ task updateOutputsInTDR {
             print(job_info)
 
         # soft delete old row
+        print("beginning soft delete")
         soft_delete_data = json.dumps({
               "deleteType": "soft", 
               "specType": "jsonArray",
@@ -465,7 +466,12 @@ task updateOutputsInTDR {
               ]})
         uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/deletes"
         response = requests.post(uri, headers=get_headers('post'), data=soft_delete_data)
-        sd_job_id = response.json()['id']
+
+        print("probing soft delete job status")
+        if "id" not in response.json():
+            pprint(response.text)
+        else:
+            sd_job_id = response.json()['id']
 
         job_status, job_info = wait_for_job_status_and_result(sd_job_id)
         if job_status != "succeeded":
