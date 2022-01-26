@@ -452,7 +452,7 @@ task updateOutputsInTDR {
         job_status, job_info = wait_for_job_status_and_result(load_job_id)
         if job_status != "succeeded":
             print(f"job status {job_status}:")
-            print(job_inf0)
+            print(job_info)
 
         # soft delete old row
         soft_delete_data = json.dumps({
@@ -469,7 +469,7 @@ task updateOutputsInTDR {
         job_status, job_info = wait_for_job_status_and_result(sd_job_id)
         if job_status != "succeeded":
             print(f"job status {job_status}:")
-            print(job_inf0)
+            print(job_info)
 
         CODE
     >>>
