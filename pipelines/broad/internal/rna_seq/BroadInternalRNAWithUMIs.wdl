@@ -461,7 +461,7 @@ task updateOutputsInTDR {
               "deleteType": "soft", 
               "specType": "jsonArray",
               "tables": [
-                {"jsonArraySpec": {"rowIds": old_datarepo_row_id},
+                {"jsonArraySpec": {"rowIds": [old_datarepo_row_id]},
                  "tableName": target_table}
               ]})
         uri = f"https://data.terra.bio/api/repository/v1/datasets/{dataset_id}/deletes"
