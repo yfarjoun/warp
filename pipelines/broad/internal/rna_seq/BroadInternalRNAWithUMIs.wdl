@@ -354,8 +354,9 @@ task updateOutputsInTDR {
             print(f'job_id {job_id} has status {job_status}')
             # if job status = done, check job result
             if job_status in ['succeeded', 'failed']:
-                print('retrieving job result')
-                response = requests.get(uri + "/result", headers=headers)
+                result_uri = uri + "/result"
+                print(f'retrieving job result from {result_uri}')
+                response = requests.get(result_uri, headers=get_headers())
 
             return job_status, response.json()
 
