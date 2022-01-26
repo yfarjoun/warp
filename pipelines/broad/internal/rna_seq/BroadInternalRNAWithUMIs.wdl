@@ -326,7 +326,7 @@ task updateOutputsInTDR {
             control_file_destination = f"{bucket}/{dir}"
             storage_client = gcs.Client()
             dest_bucket = storage_client.get_bucket(bucket)
-            blob = dest_bucket.blob(f"control_files/{filename}")
+            blob = dest_bucket.blob(f"{dir}/{filename}")
             blob.upload_from_filename(filename)
             control_file_full_path = f"gs://{bucket}/{dir}/{filename}"
             print(f"Successfully copied {loading_json_filename} to {control_file_full_path}.")
