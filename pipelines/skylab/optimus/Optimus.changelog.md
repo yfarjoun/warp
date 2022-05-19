@@ -1,11 +1,11 @@
 # 5.5.0
 2022-05-18 (Date of Last Commit)
-* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
+* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed
  
 
 # 5.4.3
 2022-04-22 (Date of Last Commit)
-* Updated Optimus to not run emptydrop step in sn_rna mode.
+* Updated Optimus to not run emptydrop step in sn_rna mode
 
 # 5.4.2
 2022-04-21 (Date of Last Commit)
@@ -18,9 +18,9 @@
 # 5.4.0
 2022-04-06 (Date of Last Commit)
 
-* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with \"Gene\" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
-* Updated the MergeStarOutput task in StarAlign.wdl to run an updated script for merging. The previous version included a bug where certain barcodes were getting zero counts after merging.
-* Changed the npz output names to include input_id as a prefix. All outputs are prefixed with input_id and are differentiated from run to run with different inputs.
+* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with \"Gene\" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true
+* Updated the MergeStarOutput task in StarAlign.wdl to run an updated script for merging. The previous version included a bug where certain barcodes were getting zero counts after merging
+* Changed the npz output names to include input_id as a prefix. All outputs are prefixed with input_id and are differentiated from run to run with different inputs
 
 # 5.3.1
 2022-04-04 (Date of Last Commit)
@@ -30,20 +30,20 @@
 # 5.3.0
 2022-02-22 (Date of Last Commit)
 
-* Added an optional flag count_exons as the Optimus workflow input with default value of false. 
+* Added an optional flag count_exons as the Optimus workflow input with default value of false 
   If this flag is true, the pipeline adds two layers to the loom file: one for reads aligned to the
-  entire gene region, and the second layer is will be a count matrix of reads aligned to only exons.
+  entire gene region, and the second layer is will be a count matrix of reads aligned to only exons
 
 # 5.2.1
 2022-02-10 (Date of Last Commit)
 
-* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location.
+* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location
 
 # 5.2.0
 2022-01-07 (Date of Last Commit)
 
-* Updated the pipeline to split the fastq files and run parallel STARsolo jobs.
-* Added SplitFastq.wdl task to split fastq files by cell barcodes such that each shard gets all reads from the same cell.
+* Updated the pipeline to split the fastq files and run parallel STARsolo jobs
+* Added SplitFastq.wdl task to split fastq files by cell barcodes such that each shard gets all reads from the same cell
 * Added MergeSortBam.wdl task to merge bam files from different shards
 
 # 5.1.3
@@ -69,7 +69,7 @@
 # 5.0.0
 2021-08-30 (Date of Last Commit)
 
-* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ file as input and directly creates a count matrix file and a BAM file. No updates have been made to the inputs or outputs. The outputs for this version are identical to the outputs for the previous Optimus version. 
+* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ file as input and directly creates a count matrix file and a BAM file. No updates have been made to the inputs or outputs. The outputs for this version are identical to the outputs for the previous Optimus version 
 * Updated GoTC base image to AppSec approved 
 * Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
 
@@ -101,7 +101,7 @@
 
 2021-02-23 (Date of Last Commit)
 
-* Made changes to emptydrops tool wrappper script to not fail in cases with small number of cells, instead, create empty drop result files with NAs.
+* Made changes to emptydrops tool wrappper script to not fail in cases with small number of cells, instead, create empty drop result files with NAs
 * Updated the docker in RunEmptyDrops.wdl task to 0.1.4 Updated emptyDropsWrapper.R in the docker
 
 # 4.2.2
@@ -309,4 +309,4 @@ Documentation has been updated
 
 2019-03-27 (Date of Last Commit)
 
-* The first major version release for the Optimus pipeline.
+* The first major version release for the Optimus pipeline
