@@ -470,6 +470,9 @@ task HaplotypeCaller {
     File interval_list
     String vcf_basename
     Boolean make_bamout
+    Boolean enable_pileup=false
+    Float? pileup_detection_snp_alt_threshold
+    Int? pileup_detection_edit_distance_read_badness_threshold
     Boolean native_sw = false
     String? contamination_extra_args 
     
@@ -515,7 +518,11 @@ task HaplotypeCaller {
       -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
       -A AssemblyComplexity \
       --assembly-complexity-reference-mode \
-      ~{contamination_extra_args}
+      ~{if(enable_pileup) then "--pileup-detection" else ""} \
+      ~{if(defined(pileup_detection_snp_alt_threshold)) then "--pileup-detection-snp-alt-threshold " + pileup_detection_snp_alt_threshold else ""} \
+      ~{if(defined(pileup_detection_edit_distance_read_badness_threshold)) then "--pileup-detection-edit-distance-read-badness-threshold " + pileup_detection_edit_distance_read_badness_threshold else ""} \
+      ~{contamination_extra_args} \
+      
   }
 
   runtime {
