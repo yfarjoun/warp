@@ -522,7 +522,7 @@ task HaplotypeCaller {
       ~{if(defined(pileup_detection_snp_alt_threshold)) then "--pileup-detection-snp-alt-threshold " + pileup_detection_snp_alt_threshold else ""} \
       ~{if(defined(pileup_detection_edit_distance_read_badness_threshold)) then "--pileup-detection-edit-distance-read-badness-threshold " + pileup_detection_edit_distance_read_badness_threshold else ""} \
       ~{contamination_extra_args} \
-        
+         
   }
 
   runtime {
