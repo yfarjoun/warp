@@ -472,7 +472,7 @@ task HaplotypeCaller {
     Boolean make_bamout
     Boolean enable_pileup=false
     Float? pileup_detection_snp_alt_threshold
-    Int? pileup_detection_edit_distance_read_badness_threshold
+    Float? pileup_detection_edit_distance_read_badness_threshold
     Boolean native_sw = false
     String? contamination_extra_args 
     
