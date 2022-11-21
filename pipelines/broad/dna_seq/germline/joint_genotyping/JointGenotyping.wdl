@@ -64,6 +64,8 @@ workflow JointGenotyping {
     Boolean use_allele_specific_annotations = true
     Boolean cross_check_fingerprints = true
     Boolean scatter_cross_check_fingerprints = false
+
+    String? project_for_requester_pays
   }
 
   Boolean allele_specific_annotations = !use_gnarly_genotyper && use_allele_specific_annotations
@@ -117,7 +119,8 @@ workflow JointGenotyping {
         ref_dict = ref_dict,
         workspace_dir_name = "genomicsdb",
         disk_size = medium_disk,
-        batch_size = 50
+        batch_size = 50,
+        project_for_requester_pays = project_for_requester_pays
     }
 
     if (use_gnarly_genotyper) {

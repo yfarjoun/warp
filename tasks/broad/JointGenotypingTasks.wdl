@@ -186,7 +186,7 @@ task GenotypeGVCFs {
   >>>
 
   runtime {
-    memory: "26000 MiB"
+    memory: "35000 MiB"
     cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
